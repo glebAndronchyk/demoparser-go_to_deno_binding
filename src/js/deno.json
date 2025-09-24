@@ -1,0 +1,13 @@
+{
+  "tasks": {
+    "dev": "deno run --watch -A src/main.ts",
+    "build:npm": "deno run -A deno_build_npm.ts"
+  },
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM", "deno.ns"],
+    "skipLibCheck": true
+  },
+  "imports": {
+    "@deno/dnt": "jsr:@deno/dnt@^0.42.3"
+  }
+}
