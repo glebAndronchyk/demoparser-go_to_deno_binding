@@ -12,6 +12,8 @@ export class ParserBridge {
         const binary = await Deno.readFile(binaryUrl);
         const wasm = await WebAssembly.instantiate(binary, this.gojs.importObject);
         this.gojs.run(wasm.instance);
+        // todo:
+        global.CreateParserInstance(Deno.readFileSync("./match.dem"));
 
         return new this();
     }
@@ -23,4 +25,11 @@ export class ParserBridge {
         // this._scope = scope;
     }
 
+    getGameState() {
+        const { promise, resolve } = Promise.withResolvers();
+
+        global.GetGameState((data) => resolve(data))
+
+        return promise;
+    }
 }
