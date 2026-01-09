@@ -25,6 +25,14 @@ export class ParserBridge {
         // this._scope = scope;
     }
 
+    getEntityState(handle: number) {
+        const { promise, resolve } = Promise.withResolvers();
+
+        global.GetEntityState((data) => resolve(data), handle)
+
+        return promise;
+    }
+
     getGameState() {
         const { promise, resolve } = Promise.withResolvers();
 
