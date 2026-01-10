@@ -1,7 +1,9 @@
 {
     "name": "demoparser-bindings",
     "scripts": {
+        "build:go": "cd ./src/go && GOOS=js GOARCH=wasm go build -o ../js/wasm/main.wasm main.go",
         "build:go:win": "powershell -Command \"cd ./src/go; $env:GOOS='js'; $env:GOARCH='wasm'; go build -o ../js/wasm/main.wasm main.go\"",
+        "build:js": "cd ./src/js && deno task build:npm",
         "build:js:win": "powershell -Command \"cd ./src/js; deno task build:npm\"",
         "publish": "",
         "link": ""

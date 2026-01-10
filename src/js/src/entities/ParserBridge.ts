@@ -2,8 +2,9 @@
 // }
 
 import { GoCnstrct } from "../types/GoCnstrct.ts";
+import {AddEventListenerOptions, EventListenerOrEventListenerObject} from "npm:undici-types@7.10.0/patch.d.ts";
 
-export class ParserBridge {
+export class ParserBridge extends EventTarget {
     ///#region static
     private static gojs = new (globalThis as any).Go() as GoCnstrct;
 
@@ -25,6 +26,10 @@ export class ParserBridge {
         // this._scope = scope;
     }
 
+    parseToEnd() {
+        global.ParseToEnd()
+    }
+
     getEntityState(handle: number) {
         const { promise, resolve } = Promise.withResolvers();
 
@@ -39,5 +44,9 @@ export class ParserBridge {
         global.GetGameState((data) => resolve(data))
 
         return promise;
+    }
+
+    addEventListener(type: string, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean) {
+        global.RegisterEvent("frame-done", callback);
     }
 }

@@ -1,4 +1,4 @@
-package js_mappings
+package gamestate
 
 import (
 	"syscall/js"

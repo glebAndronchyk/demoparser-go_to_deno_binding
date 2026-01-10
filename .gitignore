@@ -24,3 +24,4 @@ dist-ssr
 *.sw?
 /src/js/npm_build
 /src/js/wasm/main.wasm
+src/go/.vscode/settings.json

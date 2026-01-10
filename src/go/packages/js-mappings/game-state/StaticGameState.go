@@ -1,4 +1,4 @@
-package js_mappings
+package gamestate
 
 import "github.com/markus-wa/demoinfocs-golang/v5/pkg/demoinfocs"
 
