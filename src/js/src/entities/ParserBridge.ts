@@ -2,10 +2,14 @@
 // }
 
 import { GoCnstrct } from "../types/GoCnstrct.ts";
-import {AddEventListenerOptions, EventListenerOrEventListenerObject} from "npm:undici-types@7.10.0/patch.d.ts";
 
+// !!!IMPORTANT. CONTAINER FOR THE GOLANG PARSER
+global.__PARSER_API__ = {} // todo: should be a pool of parsers consider using approach below
+// https://github.com/golang/go/issues/25612#issuecomment-491919708
 export class ParserBridge extends EventTarget {
-    ///#region static
+    private api: never;
+
+    // todo: do not create GoCnstrct twice
     private static gojs = new (globalThis as any).Go() as GoCnstrct;
 
     static async construct() {
@@ -13,40 +17,52 @@ export class ParserBridge extends EventTarget {
         const binary = await Deno.readFile(binaryUrl);
         const wasm = await WebAssembly.instantiate(binary, this.gojs.importObject);
         this.gojs.run(wasm.instance);
-        // todo:
-        global.CreateParserInstance(Deno.readFileSync("./match.dem"));
+
+        this.create();
+
+        // todo: properly handle kill of the go process
+        Deno.addEventListener("beforeunload", this.kill)
 
         return new this();
     }
-    ///#endregion static
-
-    // private _scope: BridgeScope;
 
     private constructor() {
-        // this._scope = scope;
+        super()
+        this.api = global.__PARSER_API__
+    }
+
+    private static kill() {
+        global.__PARSER_API__.Kill();
+    }
+
+    private static create() {
+        global.__PARSER_API__.Create(Deno.readFileSync("./match.dem"));
+        Object.freeze(global.__PARSER_API__)
     }
 
     parseToEnd() {
-        global.ParseToEnd()
+        this.api.ParseToEnd()
+    }
+
+    parseNextFrame() {
+        this.api.ParseNextFrame()
     }
 
     getEntityState(handle: number) {
-        const { promise, resolve } = Promise.withResolvers();
-
-        global.GetEntityState((data) => resolve(data), handle)
-
-        return promise;
+        return this.api.GetEntityState(handle);
     }
 
     getGameState() {
-        const { promise, resolve } = Promise.withResolvers();
-
-        global.GetGameState((data) => resolve(data))
-
-        return promise;
+        return this.api.GetStaticGameState();
     }
 
-    addEventListener(type: string, callback: EventListenerOrEventListenerObject | null, options?: AddEventListenerOptions | boolean) {
-        global.RegisterEvent("frame-done", callback);
+    addEventListener(type: string, callback: Function): number {
+        return this.api.RegisterEvent(type, {
+            onExecute: callback,
+        });
+    }
+
+    override removeEventListener(handle: number) {
+        this.api.UnregisterEvent(handle);
     }
 }
